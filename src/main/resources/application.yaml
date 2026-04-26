@@ -1,0 +1,19 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  datasource:
+    url: jdbc:postgresql://localhost:5432/shop
+    username: admin
+    password: 1368
+  security:
+    user:
+      name: admin
+      password: 1111
+  flyway:
+    baseline-on-migrate: true
+    enabled: true
+    locations: classpath:db/migration
+jwt:
+  secret: wuTR9hufxYJjcqJBiOAGKvFmxurWhfe3YEuaPxIDkEDLGVsAChQuJr4jsR5VFN96n4r36iOwhJGWAB8JcP75Gh
+
