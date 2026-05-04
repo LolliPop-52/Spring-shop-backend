@@ -8,4 +8,5 @@ import com.example.spring_shop.domain.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long>{
     Optional<User> findFirstByEmail(String email);
+    Optional<User> deleteFirstByEmail(String email);
 }

@@ -1,17 +1,10 @@
 package com.example.spring_shop.domain;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Set;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
+
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,15 +18,20 @@ import lombok.NoArgsConstructor;
 @Table(name = "products")
 public class Product {
 
-    private static final String SEQ_NAME = "user_seq";
+    private static final String SEQ_NAME = "product_seq";
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQ_NAME)
     @SequenceGenerator(name = SEQ_NAME, sequenceName = SEQ_NAME, allocationSize = 1)
     private Long id;
 
+    @Column(nullable = false)
     private String title;
 
+    @Column(length = 3000)
+    private String description;
+    
+    @Column(nullable = false)
     private BigDecimal price;
 
     @ManyToMany(cascade = CascadeType.ALL)
@@ -42,5 +40,8 @@ public class Product {
         inverseJoinColumns = @JoinColumn(name = "category_id")
     )
     private Set<Category> categories;
+
+    @Column(nullable = false)
+    private String imageUrl;
 
 }

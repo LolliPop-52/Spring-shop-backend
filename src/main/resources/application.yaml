@@ -1,7 +1,7 @@
 spring:
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
   datasource:
     url: jdbc:postgresql://localhost:5432/shop
     username: admin
@@ -16,4 +16,3 @@ spring:
     locations: classpath:db/migration
 jwt:
   secret: wuTR9hufxYJjcqJBiOAGKvFmxurWhfe3YEuaPxIDkEDLGVsAChQuJr4jsR5VFN96n4r36iOwhJGWAB8JcP75Gh
-

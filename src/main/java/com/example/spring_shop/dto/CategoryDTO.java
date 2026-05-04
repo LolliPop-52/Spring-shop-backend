@@ -9,11 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserDTO {
+public class CategoryDTO {
     private Long id;
-    private String password;
-    private String name;
-    private String email;
-    private Long bucketId;
-    private String role;
+    private String title;
 }

@@ -1,6 +1,7 @@
 package com.example.spring_shop.domain;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -22,7 +23,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "users")
 public class User {
-    
+
     private static final String SEQ_NAME = "user_seq";
 
     @Id
@@ -30,18 +31,19 @@ public class User {
     @SequenceGenerator(name = SEQ_NAME, sequenceName = SEQ_NAME, allocationSize = 1)
     private Long id;
 
+    @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false, unique = true)
     private String email;
 
-    private boolean archive;
-
     @Enumerated(EnumType.STRING)
-    private Role role;
+    private UserRole role;
 
-    @OneToOne(cascade = CascadeType.REMOVE)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL) 
     private Bucket bucket;
 
 }
