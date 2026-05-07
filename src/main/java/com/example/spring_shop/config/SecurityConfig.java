@@ -35,10 +35,11 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/user/registration" ,"/api/v1/auth/**").permitAll()
+                        .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/v1/product/**").permitAll()
                         .requestMatchers("/api/v1/manager/**").hasRole(UserRole.MANAGER.name())
                         .requestMatchers("/api/v1/admin/**").hasRole(UserRole.ADMIN.name())
+                        .requestMatchers("/api/v1/user/**").authenticated()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

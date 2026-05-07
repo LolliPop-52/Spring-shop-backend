@@ -3,31 +3,38 @@ package com.example.spring_shop.service;
 import javax.naming.AuthenticationException;
 import com.example.spring_shop.domain.User;
 import com.example.spring_shop.dto.UserDTO;
+import com.example.spring_shop.dto.UserUpdateDTO;
 import com.example.spring_shop.security.JwtAuthenticationDTO;
 import com.example.spring_shop.security.RefreshTokenDTO;
-import com.example.spring_shop.security.UserCredentialsDTO;
 
 public interface UserService {
 
 
     // Secutiry
-    JwtAuthenticationDTO signIn(UserCredentialsDTO userCredentialsDTO)
+
+    //Create
+    JwtAuthenticationDTO signIn(UserDTO userDTO)
+            throws AuthenticationException;
+
+
+    JwtAuthenticationDTO signUp(UserDTO userDTO)
             throws AuthenticationException;
 
     JwtAuthenticationDTO refreshToken(RefreshTokenDTO refreshTokenDTO)
             throws AuthenticationException;
 
+    JwtAuthenticationDTO userUpdate(UserUpdateDTO userUpdateDTO) throws AuthenticationException;
 
-    // CRUD
-    String addUser(UserDTO user);
+    UserDTO getSingInUser(UserDTO userDTO) throws AuthenticationException;
+
+
+    //CRUD
 
     UserDTO getUserById(Long id);
 
     UserDTO getUserByEmail(String email);
 
-    String updateUser(UserDTO user);
-
     String deleteUserById(Long id);
 
-    User findByCredentials(UserCredentialsDTO userCredentialsDTO) throws AuthenticationException;
+    User findByUserDTO(UserDTO userDTO) throws AuthenticationException;
 }

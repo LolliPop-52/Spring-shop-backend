@@ -2,6 +2,8 @@ package com.example.spring_shop.service;
 
 import javax.naming.AuthenticationException;
 
+import com.example.spring_shop.dto.UserUpdateDTO;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +22,8 @@ import com.example.spring_shop.security.UserCredentialsDTO;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.Objects;
+
 
 @Service
 @RequiredArgsConstructor
@@ -32,9 +36,38 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public JwtAuthenticationDTO signIn(UserCredentialsDTO userCredentialsDTO)
+    public JwtAuthenticationDTO signIn(UserDTO userDTO)
             throws AuthenticationException {
-        User user = findByCredentials(userCredentialsDTO);
+        UserDTO signUserDTO = getSingInUser(userDTO);
+        return jwtService.generateAuthToken(signUserDTO.getEmail());
+    }
+
+    @Override
+    @Transactional
+    public JwtAuthenticationDTO signUp(UserDTO userDTO)
+            throws AuthenticationException {
+        addUser(userDTO);
+        return jwtService.generateAuthToken(userDTO.getEmail());
+    }
+
+    @Override
+    @Transactional
+    public JwtAuthenticationDTO userUpdate(UserUpdateDTO userUpdateDTO)
+            throws AuthenticationException {
+        User user = findByUserUpdateDTO(userUpdateDTO);
+        if(userUpdateDTO.getNewEmail() != null){
+            user.setEmail(userUpdateDTO.getNewEmail());
+        }
+        if(userUpdateDTO.getNewName() != null){
+            user.setName(userUpdateDTO.getNewName());
+        }
+        if(userUpdateDTO.getNewPassword() != null){
+            if(userUpdateDTO.getNewPassword().equals(userUpdateDTO.getNewConfirmPassword())){
+                user.setPassword(passwordEncoder.encode(userUpdateDTO.getNewPassword()));
+            } else {
+                throw new AuthenticationException("passwords don't match");
+            }
+        }
         return jwtService.generateAuthToken(user.getEmail());
     }
 
@@ -53,6 +86,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserDTO getSingInUser(UserDTO userDTO) throws AuthenticationException {
+        User user = userRepository.findFirstByEmail(userDTO.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException(userDTO.getEmail()));
+        if(passwordEncoder.matches(userDTO.getPassword(), user.getPassword())){
+            return userMapper.toDTO(user);
+        } else {
+            throw new AuthenticationException("uncorrected password");
+        }
+    }
+
+    @Override
     public UserDTO getUserById(Long id) {
         User user =
                 userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
@@ -66,9 +110,12 @@ public class UserServiceImpl implements UserService {
         return  userMapper.toDTO(user);
     }
 
-    @Override
+
     @Transactional
-    public String addUser(UserDTO userDTO) {
+    void addUser(UserDTO userDTO) throws AuthenticationException {
+        if(userRepository.existsByEmail(userDTO.getEmail())){
+            throw new AuthenticationException("email has already been registered");
+        }
         User user = userMapper.toEntity(userDTO);
         user.setRole(UserRole.CLIENT);
         Bucket bucket = new Bucket();
@@ -76,25 +123,22 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         bucket.setUser(user);
         userRepository.save(user);
-        return "User added";
     }
 
-    @Override
-    @Transactional
-    public String updateUser(UserDTO userDTO) {
-
-        Long id = userDTO.getId();
-        User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
-
-        user.setEmail(userDTO.getEmail());
-        user.setName(userDTO.getName());
-
-        if (userDTO.getPassword() != null && !userDTO.getPassword().isEmpty())
-            user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-
-        userRepository.save(user);
-        return "User upadated";
-    }
+//    @Transactional
+//    void updateUser(UserDTO userDTO) {
+//
+//        Long id = userDTO.getId();
+//        User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
+//
+//        user.setEmail(userDTO.getEmail());
+//        user.setName(userDTO.getName());
+//
+//        if (userDTO.getPassword() != null && !userDTO.getPassword().isEmpty())
+//            user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+//
+//        userRepository.save(user);
+//    }
 
     @Override
     @Transactional
@@ -109,14 +153,20 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public User findByCredentials(UserCredentialsDTO userCredentialsDTO)
+    public User findByUserDTO(UserDTO userDTO)
             throws AuthenticationException {
-        User user = userRepository.findFirstByEmail(userCredentialsDTO.getEmail())
-                .orElseThrow(() -> new ResourceNotFoundException(userCredentialsDTO.getEmail()));
-        if (passwordEncoder.matches(userCredentialsDTO.getPassword(), user.getPassword())) {
+        User user = userRepository.findFirstByEmail(userDTO.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException(userDTO.getEmail()));
+        if (passwordEncoder.matches(userDTO.getPassword(), user.getPassword())) {
             return user;
         }
         throw new AuthenticationException("Email or password is not correct");
+    }
+
+    public User findByUserUpdateDTO(UserUpdateDTO userUpdateDTO)
+        throws AuthenticationException {
+        return userRepository.findFirstByEmail(userUpdateDTO.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException(userUpdateDTO.getEmail()));
     }
 
 

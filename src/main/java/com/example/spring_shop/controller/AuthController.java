@@ -3,6 +3,7 @@ package com.example.spring_shop.controller;
 
 import javax.naming.AuthenticationException;
 
+import com.example.spring_shop.dto.UserDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,9 +26,15 @@ public class AuthController {
     private final UserService userService;
 
     @PostMapping("/sign-in")
-    public ResponseEntity<JwtAuthenticationDTO> signIn(
-            @RequestBody UserCredentialsDTO userCredentialsDTO) throws AuthenticationException {
-        return ResponseEntity.ok(userService.signIn(userCredentialsDTO));
+    public ResponseEntity<JwtAuthenticationDTO> signIn(@RequestBody UserDTO userDTO)
+            throws AuthenticationException {
+        return ResponseEntity.ok(userService.signIn(userDTO));
+    }
+
+    @PostMapping("/sign-up")
+    public ResponseEntity<JwtAuthenticationDTO> signUp(@RequestBody UserDTO userDTO)
+            throws AuthenticationException {
+        return ResponseEntity.ok(userService.signUp(userDTO));
     }
 
     @PostMapping("/refresh")

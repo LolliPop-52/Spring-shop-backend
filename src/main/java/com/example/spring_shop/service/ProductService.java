@@ -12,7 +12,7 @@ public interface ProductService {
 
     Page<ProductDTO> getPageOfProduct(int page, int size);
 
-    String addProduct(ProductDTO productDTO);
+    void addProduct(ProductDTO productDTO);
 
     Page<ProductDTO> search(String query, Pageable pageable);
 

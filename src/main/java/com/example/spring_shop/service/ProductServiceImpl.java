@@ -30,7 +30,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public String addProduct(ProductDTO productDTO){
+    public void addProduct(ProductDTO productDTO){
 
         Set<Category> categories = productDTO.getCategories().stream()
                 .map(category -> categoryRepository.findCategoryByTitle(category.getTitle())
@@ -48,7 +48,6 @@ public class ProductServiceImpl implements ProductService {
                 .categories(categories)
                 .build();
         productRepository.save(product);
-        return "product added";
     }
 
     @Override
