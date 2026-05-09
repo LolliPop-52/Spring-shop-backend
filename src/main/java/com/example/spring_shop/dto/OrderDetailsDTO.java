@@ -1,21 +1,21 @@
 package com.example.spring_shop.dto;
 
-import java.math.BigDecimal;
-import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
-public class BucketDTO {
+public class OrderDetailsDTO {
     private Long id;
-    private String userEmail;
-    private List<BucketItemDTO> items;
-    private BigDecimal totalItemsAmount;
+    private Long orderId;
+    private Long productId;
+    private BigDecimal amount;
     private BigDecimal totalPrice;
 }

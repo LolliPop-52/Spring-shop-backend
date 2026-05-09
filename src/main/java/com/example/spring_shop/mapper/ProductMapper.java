@@ -1,8 +1,10 @@
 package com.example.spring_shop.mapper;
 
+import com.example.spring_shop.domain.BucketItem;
 import com.example.spring_shop.domain.Product;
 import com.example.spring_shop.dto.CategoryDTO;
 import com.example.spring_shop.dto.ProductDTO;
+import com.example.spring_shop.dto.SmallProductDTO;
 import com.example.spring_shop.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -26,4 +28,16 @@ public class ProductMapper {
                 .imageUrl(product.getImageUrl())
                 .build();
     }
+
+    public SmallProductDTO toSmallDto(Product product){
+        if(product == null)
+            return null;
+        return SmallProductDTO.builder()
+                .id(product.getId())
+                .price(product.getPrice())
+                .title(product.getTitle())
+                .imageUrl(product.getImageUrl())
+                .build();
+    }
+
 }

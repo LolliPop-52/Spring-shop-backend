@@ -27,16 +27,16 @@ public class JwtService {
 
     public JwtAuthenticationDTO generateAuthToken(String email) {
         JwtAuthenticationDTO jwtDTO = new JwtAuthenticationDTO();
-        jwtDTO.setToken(genetareJwtToken(email));
-        jwtDTO.setRefreshToken(genetareRefreshToken(email));
+        jwtDTO.setToken(generateJwtToken(email));
+        jwtDTO.setRefreshToken(generateRefreshToken(email));
         return jwtDTO;
     }
 
     public JwtAuthenticationDTO refreshBaseToken(String email, String refreshToken) {
         JwtAuthenticationDTO jwtDTO = new JwtAuthenticationDTO();
-        jwtDTO.setRefreshToken(email);
+        jwtDTO.setToken(generateJwtToken(email));
         jwtDTO.setRefreshToken(refreshToken);
-        return null;
+        return jwtDTO;
     }
 
     public boolean validateJwtToken(String token){
@@ -70,8 +70,8 @@ public class JwtService {
         return claims.getSubject();
     }
 
-    private String genetareJwtToken(String email) {
-        Date date = Date.from(LocalDateTime.now().plusMinutes(60).atZone(ZoneId.systemDefault()).toInstant());
+    private String generateJwtToken(String email) {
+        Date date = Date.from(LocalDateTime.now().plusMinutes(1).atZone(ZoneId.systemDefault()).toInstant());
         return Jwts.builder()
                 .subject(email)
                 .expiration(date)
@@ -79,8 +79,8 @@ public class JwtService {
                 .compact();
     }
 
-    private String genetareRefreshToken(String email) {
-    Date date = Date.from(LocalDateTime.now().plusDays(7).atZone(ZoneId.systemDefault()).toInstant());
+    private String generateRefreshToken(String email) {
+    Date date = Date.from(LocalDateTime.now().plusMinutes(180).atZone(ZoneId.systemDefault()).toInstant());
     return Jwts.builder()
             .subject(email)
             .expiration(date)

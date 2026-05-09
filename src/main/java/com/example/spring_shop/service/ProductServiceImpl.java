@@ -4,6 +4,7 @@ import com.example.spring_shop.domain.Category;
 import com.example.spring_shop.domain.Product;
 import com.example.spring_shop.dto.CategoryDTO;
 import com.example.spring_shop.dto.ProductDTO;
+import com.example.spring_shop.exception_handler.ResourceNotFoundException;
 import com.example.spring_shop.mapper.ProductMapper;
 import com.example.spring_shop.repository.CategoryRepository;
 import com.example.spring_shop.repository.ProductRepository;
@@ -55,25 +56,21 @@ public class ProductServiceImpl implements ProductService {
     public ProductDTO getProductById(Long id) {
         return productRepository.findById(id)
                 .map(productMapper::toDto)
-                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(id));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Page<ProductDTO> getPageOfProduct(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
-
-        Page<Product> productPage = productRepository.findAll(pageable);
-
-        return productPage.map(productMapper::toDto);
+    public Product getProductEntityById(Long id){
+        return productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(id));
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Page<ProductDTO> search(String query, Pageable pageable) {
         Page<Product> productPage = productRepository.searchProducts(query, pageable);
 
-        // Превращаем Page<Product> в Page<ProductDTO> через твой Mapper
         return productPage.map(product -> productMapper.toDto(product));
     }
 
@@ -83,12 +80,14 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<ProductDTO> findAllProducts(Pageable pageable) {
         Page<Product> productPage = productRepository.findAll(pageable);
         return productPage.map(productMapper::toDto);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<CategoryDTO> findAllCategories(Pageable pageable) {
         Page<Category> categoryPage = categoryRepository.findAll(pageable);
         return categoryPage.map(category -> CategoryDTO.builder()

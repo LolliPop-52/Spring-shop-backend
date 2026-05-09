@@ -1,21 +1,15 @@
 package com.example.spring_shop.domain;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
+
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Data
@@ -36,11 +30,31 @@ public class Bucket {
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
-    
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "buckets_products", 
-        joinColumns = @JoinColumn(name = "bucket_id"),
-        inverseJoinColumns = @JoinColumn(name = "product_id"))
-    private List<Product> products;
 
+
+    @Builder.Default
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "bucket", orphanRemoval = true)
+    private List<BucketItem> items = new ArrayList<>();
+
+    public void addItem(BucketItem bucketItem){
+        this.items.add(bucketItem);
+        bucketItem.setBucket(this);
+    }
+
+    public void deleteItem(BucketItem bucketItem){
+        this.items.remove(bucketItem);
+        bucketItem.setBucket(null);
+    }
+
+    public BigDecimal getItemsAmount(){
+        return items.stream()
+                .map(BucketItem::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public BigDecimal getTotalPrice(){
+        return items.stream()
+                .map(BucketItem::getTotalPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
 }

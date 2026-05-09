@@ -10,7 +10,7 @@ import com.example.spring_shop.security.RefreshTokenDTO;
 public interface UserService {
 
 
-    // Secutiry
+    // Security
 
     //Create
     JwtAuthenticationDTO signIn(UserDTO userDTO)
@@ -25,9 +25,6 @@ public interface UserService {
 
     JwtAuthenticationDTO userUpdate(UserUpdateDTO userUpdateDTO) throws AuthenticationException;
 
-    UserDTO getSingInUser(UserDTO userDTO) throws AuthenticationException;
-
-
     //CRUD
 
     UserDTO getUserById(Long id);
@@ -35,6 +32,4 @@ public interface UserService {
     UserDTO getUserByEmail(String email);
 
     String deleteUserById(Long id);
-
-    User findByUserDTO(UserDTO userDTO) throws AuthenticationException;
 }

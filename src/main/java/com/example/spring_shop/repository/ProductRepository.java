@@ -20,8 +20,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>{
             "OR LOWER(c.title) LIKE LOWER(CONCAT('%', :query, '%'))")
     Page<Product> searchProducts(@Param("query") String query, Pageable pageable);
 
-    Page<Product> findByTitleContainingIgnoreCase(String title, Pageable pageable);
-
     boolean existsByTitleAndPriceAndDescription(String title, BigDecimal price, String description);
+
 }
 

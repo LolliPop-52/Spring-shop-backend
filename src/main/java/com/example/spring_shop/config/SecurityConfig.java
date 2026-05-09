@@ -1,5 +1,6 @@
 package com.example.spring_shop.config;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -9,6 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -25,11 +27,23 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
+    private final AuthenticationEntryPoint authEntryPoint;
 
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
+                .exceptionHandling(exception -> exception
+                        // Сработает, если токена нет или он просрочен (Аноним)
+                        .authenticationEntryPoint(authEntryPoint)
+
+                        // Сработает, если токен есть, личность известна, но прав мало
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.setContentType("application/json");
+                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                            response.getWriter().write("{ \"error\": \"Forbidden\", \"message\": \"У вас недостаточно прав\" }");
+                        })
+                )
                 .httpBasic(conf -> conf.disable())
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session

@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 public class UserDTO {
     private Long id;
     private String password;
+    private String confirmPassword;
     private String name;
     private String email;
     private Long bucketId;

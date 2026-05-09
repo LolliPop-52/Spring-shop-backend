@@ -6,14 +6,13 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import com.example.spring_shop.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-
 @Service
 @RequiredArgsConstructor
 public class CustomUserServiceImpl implements UserDetailsService{
-    
+
     private final UserRepository userRepository;
-    
-    
+
+
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return userRepository.findFirstByEmail(email)

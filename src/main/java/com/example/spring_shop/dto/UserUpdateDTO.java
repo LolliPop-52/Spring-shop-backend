@@ -17,7 +17,10 @@ public class UserUpdateDTO {
     private String email;
     private String newEmail;
 
+    private String password;
+
     private String newPassword;
     private String newConfirmPassword;
+
 
 }

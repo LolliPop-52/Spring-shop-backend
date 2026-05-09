@@ -1,8 +1,12 @@
 package com.example.spring_shop.controller;
 
 import com.example.spring_shop.dto.UserUpdateDTO;
+import com.example.spring_shop.security.CustomUserDetails;
 import com.example.spring_shop.security.JwtAuthenticationDTO;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,7 +28,6 @@ import javax.naming.AuthenticationException;
 public class UserController {
     private final UserService userService;
 
-
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> getUserById(@PathVariable String id) {
         return ResponseEntity.ok(userService.getUserById(Long.parseLong(id)));
@@ -36,5 +39,9 @@ public class UserController {
         return ResponseEntity.ok(userService.userUpdate(userUpdateDTO));
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<UserDTO> getCurrentUser(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(userService.getUserByEmail(userDetails.getUsername()));
+    }
 
 }

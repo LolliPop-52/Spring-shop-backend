@@ -1,5 +1,6 @@
 package com.example.spring_shop.service;
 
+import com.example.spring_shop.domain.Product;
 import com.example.spring_shop.dto.CategoryDTO;
 import com.example.spring_shop.dto.ProductDTO;
 import org.springframework.data.domain.Page;
@@ -9,8 +10,7 @@ import java.math.BigDecimal;
 
 public interface ProductService {
     ProductDTO getProductById(Long id);
-
-    Page<ProductDTO> getPageOfProduct(int page, int size);
+    Product getProductEntityById(Long id);
 
     void addProduct(ProductDTO productDTO);
 

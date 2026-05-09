@@ -55,6 +55,10 @@ public class UserServiceImpl implements UserService {
     public JwtAuthenticationDTO userUpdate(UserUpdateDTO userUpdateDTO)
             throws AuthenticationException {
         User user = findByUserUpdateDTO(userUpdateDTO);
+
+        if(!passwordEncoder.matches(userUpdateDTO.getPassword(), user.getPassword())) {
+            throw new AuthenticationException("uncorrected password");
+        }
         if(userUpdateDTO.getNewEmail() != null){
             user.setEmail(userUpdateDTO.getNewEmail());
         }
@@ -85,8 +89,7 @@ public class UserServiceImpl implements UserService {
         throw new AuthenticationException("Invalid refresh token");
     }
 
-    @Override
-    public UserDTO getSingInUser(UserDTO userDTO) throws AuthenticationException {
+    private UserDTO getSingInUser(UserDTO userDTO) throws AuthenticationException {
         User user = userRepository.findFirstByEmail(userDTO.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException(userDTO.getEmail()));
         if(passwordEncoder.matches(userDTO.getPassword(), user.getPassword())){
@@ -97,6 +100,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public UserDTO getUserById(Long id) {
         User user =
                 userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
@@ -104,6 +108,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public UserDTO getUserByEmail(String email) {
         User user = userRepository.findFirstByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException(email));
@@ -111,8 +116,11 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    @Transactional
-    void addUser(UserDTO userDTO) throws AuthenticationException {
+    private void addUser(UserDTO userDTO) throws AuthenticationException {
+        if(!(userDTO.getPassword().equals(userDTO.getConfirmPassword()))){
+            throw new AuthenticationException("passwords don't match");
+        }
+
         if(userRepository.existsByEmail(userDTO.getEmail())){
             throw new AuthenticationException("email has already been registered");
         }
@@ -125,21 +133,6 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
-//    @Transactional
-//    void updateUser(UserDTO userDTO) {
-//
-//        Long id = userDTO.getId();
-//        User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
-//
-//        user.setEmail(userDTO.getEmail());
-//        user.setName(userDTO.getName());
-//
-//        if (userDTO.getPassword() != null && !userDTO.getPassword().isEmpty())
-//            user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-//
-//        userRepository.save(user);
-//    }
-
     @Override
     @Transactional
     public String deleteUserById(Long id) {
@@ -149,18 +142,6 @@ public class UserServiceImpl implements UserService {
             throw new ResourceNotFoundException(id);
         }
         return "User deleted";
-    }
-
-    @Override
-    @Transactional
-    public User findByUserDTO(UserDTO userDTO)
-            throws AuthenticationException {
-        User user = userRepository.findFirstByEmail(userDTO.getEmail())
-                .orElseThrow(() -> new ResourceNotFoundException(userDTO.getEmail()));
-        if (passwordEncoder.matches(userDTO.getPassword(), user.getPassword())) {
-            return user;
-        }
-        throw new AuthenticationException("Email or password is not correct");
     }
 
     public User findByUserUpdateDTO(UserUpdateDTO userUpdateDTO)
