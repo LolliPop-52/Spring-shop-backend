@@ -15,5 +15,7 @@ public interface BucketService {
 
     List<BucketItemDTO> takeAllItem(String email);
 
+    BucketDTO clearBucket(String email);
+
     BucketDTO getBucketByUser(String email);
 }

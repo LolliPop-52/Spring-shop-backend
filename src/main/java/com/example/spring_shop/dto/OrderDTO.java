@@ -1,10 +1,7 @@
 package com.example.spring_shop.dto;
 
 
-import com.example.spring_shop.domain.PaymentStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,15 +18,11 @@ import java.util.List;
 public class OrderDTO {
     private Long id;
 
-    private Long userId;
+    private String userEmail;
 
     private String address;
 
     private List<OrderDetailsDTO> details;
-
-    private String deliveryStatus;
-
-    private String paymentStatus;
 
     private BigDecimal totalSum;
 

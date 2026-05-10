@@ -36,4 +36,11 @@ public class OrderDetails {
     private BigDecimal amount;
 
     private BigDecimal totalPrice;
+
+    @Enumerated(EnumType.STRING)
+    private DeliveryStatus deliveryStatus;
+
+    @Enumerated(EnumType.STRING)
+    private PaymentType paymentType;
+
 }

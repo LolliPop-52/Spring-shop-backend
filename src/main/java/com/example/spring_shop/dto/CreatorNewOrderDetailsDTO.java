@@ -1,6 +1,5 @@
 package com.example.spring_shop.dto;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,17 +8,12 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public class OrderDetailsDTO {
-    private Long id;
-    private Long orderId;
+public class CreatorNewOrderDetailsDTO {
     private Long productId;
-    private Long amount;
-    private Long price;
-    private Long totalPrice;
-    private String deliveryStatus;
+    private BigDecimal priceOnOrder;
+    private BigDecimal amount;
     private String paymentType;
-    private String estimatedDeliveryDate;
 }

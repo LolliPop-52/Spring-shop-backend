@@ -5,10 +5,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.aspectj.weaver.ast.Or;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -31,25 +34,32 @@ public class Order {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<OrderDetails> details;
+    @Builder.Default
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "order", orphanRemoval = true)
+    private List<OrderDetails> details = new ArrayList<>();
 
-    @Column(nullable = false)
-    private String address;
-
-    @Enumerated(EnumType.STRING)
-    private DeliveryStatus deliveryStatus;
-
-    @Enumerated(EnumType.STRING)
-    private PaymentStatus paymentStatus;
+    @ManyToOne
+    @JoinColumn(name = "pickup_point_id", nullable = false)
+    private PickupPoint pickupPoint;
 
     @CreationTimestamp
-    @Column(nullable = false)
     private LocalDateTime createdTime;
 
     @UpdateTimestamp
     @Column(nullable = false)
     private LocalDateTime updatedTime;
 
+    private BigDecimal totalPrice;
+
+    private BigDecimal totalAmount;
+
+    public void addDetails(OrderDetails orderDetails){
+        details.add(orderDetails);
+        orderDetails.setOrder(this);
+        this.totalPrice = (this.totalPrice == null ? BigDecimal.ZERO : this.totalPrice)
+                .add(orderDetails.getTotalPrice());
+        this.totalAmount = (this.totalAmount == null ? BigDecimal.ZERO : this.totalAmount)
+                .add(orderDetails.getAmount());
+    }
 
 }

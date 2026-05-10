@@ -1,6 +1,8 @@
 package com.example.spring_shop.exception_handler;
 
 import javax.naming.AuthenticationException;
+
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -30,6 +32,12 @@ public class GlobalExceptionHandle {
     public ResponseEntity<String> handleGenericException(Exception ex){
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("An internal server error occurred");
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<String> handleDataException(DataIntegrityViolationException ex){
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body("Price mismatch for product");
     }
     
 }

@@ -34,6 +34,7 @@ public class Bucket {
 
     @Builder.Default
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "bucket", orphanRemoval = true)
+    @OrderBy("id DESC")
     private List<BucketItem> items = new ArrayList<>();
 
     public void addItem(BucketItem bucketItem){

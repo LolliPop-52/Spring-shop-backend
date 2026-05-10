@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -99,6 +100,15 @@ public class BucketServiceImpl implements BucketService{
         return bucket.getItems().stream()
                 .map(bucketItemMapper::toDto)
                 .toList();
+    }
+
+    @Override
+    @Transactional
+    public BucketDTO clearBucket(String email) {
+        Bucket bucket = getBucketEntityByUser(email);
+        bucket.getItems().clear();
+        bucketRepository.save(bucket);
+        return bucketMapper.toDto(bucket);
     }
 
     @Override
