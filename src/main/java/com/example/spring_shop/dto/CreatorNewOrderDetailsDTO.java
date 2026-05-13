@@ -15,5 +15,4 @@ public class CreatorNewOrderDetailsDTO {
     private Long productId;
     private BigDecimal priceOnOrder;
     private BigDecimal amount;
-    private String paymentType;
 }

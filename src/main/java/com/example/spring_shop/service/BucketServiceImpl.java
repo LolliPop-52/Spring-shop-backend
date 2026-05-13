@@ -3,9 +3,7 @@ package com.example.spring_shop.service;
 import com.example.spring_shop.domain.Bucket;
 import com.example.spring_shop.domain.BucketItem;
 import com.example.spring_shop.domain.Product;
-import com.example.spring_shop.dto.BucketDTO;
-import com.example.spring_shop.dto.BucketItemDTO;
-import com.example.spring_shop.dto.ModifyBucketItemDTO;
+import com.example.spring_shop.dto.*;
 import com.example.spring_shop.exception_handler.ResourceNotFoundException;
 import com.example.spring_shop.mapper.BucketItemMapper;
 import com.example.spring_shop.mapper.BucketMapper;
@@ -108,6 +106,21 @@ public class BucketServiceImpl implements BucketService{
         Bucket bucket = getBucketEntityByUser(email);
         bucket.getItems().clear();
         bucketRepository.save(bucket);
+        return bucketMapper.toDto(bucket);
+    }
+
+    @Override
+    @Transactional
+    public BucketDTO clearOrderedItems(CreatorNewOrderDTO creatorNewOrderDTO){
+        Bucket bucket = bucketRepository.findByUserEmail(creatorNewOrderDTO.getUserEmail())
+                .orElseThrow(() -> new ResourceNotFoundException(creatorNewOrderDTO.getUserEmail()));
+        for(CreatorNewOrderDetailsDTO orderDetail : creatorNewOrderDTO.getOrderDetails()){
+            deleteItemOnBucket(ModifyBucketItemDTO.builder()
+                    .userEmail(creatorNewOrderDTO.getUserEmail())
+                    .productId(orderDetail.getProductId())
+                    .amount(orderDetail.getAmount())
+                    .build());
+        }
         return bucketMapper.toDto(bucket);
     }
 

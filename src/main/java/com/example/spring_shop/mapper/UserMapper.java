@@ -19,6 +19,7 @@ public class UserMapper {
                 .password(user.getPassword())
                 .role(user.getRole().name())
                 .bucketId(user.getBucket().getId())
+                .enabled(user.isEnabled())
                 .build();
     }
 

@@ -17,4 +17,5 @@ public class UserDTO {
     private String email;
     private Long bucketId;
     private String role;
+    private boolean enabled;
 }

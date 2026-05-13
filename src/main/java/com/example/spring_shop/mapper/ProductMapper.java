@@ -26,6 +26,7 @@ public class ProductMapper {
                         .map(category -> new CategoryDTO(category.getId(), category.getTitle()))
                         .collect(Collectors.toSet()))
                 .imageUrl(product.getImageUrl())
+                .description(product.getDescription())
                 .build();
     }
 

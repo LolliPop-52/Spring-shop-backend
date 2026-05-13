@@ -9,7 +9,10 @@ import java.util.List;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
-    @EntityGraph(attributePaths = {"details", "details.product"})
+    // Используем везде правильное имя "orderDetails"
+    @EntityGraph(attributePaths = {"orderDetails", "orderDetails.product"})
     List<Order> findByUserEmail(String email);
 
+    @EntityGraph(attributePaths = {"orderDetails", "pickupPoint"})
+    List<Order> findAllByUserEmail(String email);
 }

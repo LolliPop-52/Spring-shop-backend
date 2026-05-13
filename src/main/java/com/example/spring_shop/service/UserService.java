@@ -6,6 +6,7 @@ import com.example.spring_shop.dto.UserDTO;
 import com.example.spring_shop.dto.UserUpdateDTO;
 import com.example.spring_shop.security.JwtAuthenticationDTO;
 import com.example.spring_shop.security.RefreshTokenDTO;
+import org.springframework.http.ResponseEntity;
 
 public interface UserService {
 
@@ -32,4 +33,6 @@ public interface UserService {
     UserDTO getUserByEmail(String email);
 
     String deleteUserById(Long id);
+
+    ResponseEntity<String> confirmUser(String token);
 }

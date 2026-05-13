@@ -20,7 +20,7 @@ import java.util.List;
 @Table(name = "pickup_points")
 public class PickupPoint {
 
-    private final String SEQ_NAME = "pickup_point_seq";
+    private static final String SEQ_NAME = "pickup_point_seq";
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQ_NAME)

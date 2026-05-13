@@ -22,7 +22,7 @@ import java.util.List;
 @Table(name = "orders")
 public class Order {
 
-    private final String SEQ_NAME = "order_seq";
+    private static final String SEQ_NAME = "order_seq";
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQ_NAME)
@@ -36,13 +36,14 @@ public class Order {
 
     @Builder.Default
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "order", orphanRemoval = true)
-    private List<OrderDetails> details = new ArrayList<>();
+    private List<OrderDetails> orderDetails = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "pickup_point_id", nullable = false)
     private PickupPoint pickupPoint;
 
     @CreationTimestamp
+    @Column(nullable = false)
     private LocalDateTime createdTime;
 
     @UpdateTimestamp
@@ -53,13 +54,19 @@ public class Order {
 
     private BigDecimal totalAmount;
 
-    public void addDetails(OrderDetails orderDetails){
-        details.add(orderDetails);
-        orderDetails.setOrder(this);
+    @Enumerated(EnumType.STRING)
+    private DeliveryStatus deliveryStatus;
+
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus paymentStatus;
+
+    public void addDetails(OrderDetails details){
+        orderDetails.add(details);
+        details.setOrder(this);
         this.totalPrice = (this.totalPrice == null ? BigDecimal.ZERO : this.totalPrice)
-                .add(orderDetails.getTotalPrice());
+                .add(details.getTotalPrice());
         this.totalAmount = (this.totalAmount == null ? BigDecimal.ZERO : this.totalAmount)
-                .add(orderDetails.getAmount());
+                .add(details.getAmount());
     }
 
 }

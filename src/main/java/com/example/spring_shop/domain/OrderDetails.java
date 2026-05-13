@@ -6,8 +6,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -17,7 +20,7 @@ import java.math.BigDecimal;
 @Table(name = "order_details")
 public class OrderDetails {
 
-    private final String SEQ_NAME = "order_details_seq";
+    private static final String SEQ_NAME = "order_details_seq";
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQ_NAME)
@@ -37,10 +40,17 @@ public class OrderDetails {
 
     private BigDecimal totalPrice;
 
+    @CreationTimestamp
+    private LocalDateTime createdTime;
+
     @Enumerated(EnumType.STRING)
     private DeliveryStatus deliveryStatus;
 
     @Enumerated(EnumType.STRING)
     private PaymentType paymentType;
+
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus paymentStatus;
+
 
 }

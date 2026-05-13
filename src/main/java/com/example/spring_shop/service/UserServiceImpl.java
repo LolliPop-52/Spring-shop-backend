@@ -3,6 +3,10 @@ package com.example.spring_shop.service;
 import javax.naming.AuthenticationException;
 
 import com.example.spring_shop.dto.UserUpdateDTO;
+import com.example.spring_shop.mail.MailService;
+import com.example.spring_shop.mail.VerificationToken;
+import com.example.spring_shop.repository.VerificationTokenRepository;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,7 +26,9 @@ import com.example.spring_shop.security.UserCredentialsDTO;
 
 import lombok.RequiredArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.UUID;
 
 
 @Service
@@ -30,8 +36,15 @@ import java.util.Objects;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final VerificationTokenRepository verificationTokenRepository;
+
+
+
     private final JwtService jwtService;
+    private final MailService mailService;
+
     private final PasswordEncoder passwordEncoder;
+
     private final UserMapper userMapper;
 
     @Override
@@ -117,6 +130,7 @@ public class UserServiceImpl implements UserService {
 
 
     private void addUser(UserDTO userDTO) throws AuthenticationException {
+
         if(!(userDTO.getPassword().equals(userDTO.getConfirmPassword()))){
             throw new AuthenticationException("passwords don't match");
         }
@@ -124,13 +138,23 @@ public class UserServiceImpl implements UserService {
         if(userRepository.existsByEmail(userDTO.getEmail())){
             throw new AuthenticationException("email has already been registered");
         }
+
         User user = userMapper.toEntity(userDTO);
         user.setRole(UserRole.CLIENT);
+
+        user.setEnabled(false);
+
         Bucket bucket = new Bucket();
         user.setBucket(bucket);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         bucket.setUser(user);
         userRepository.save(user);
+
+        String token = UUID.randomUUID().toString();
+        VerificationToken verificationToken = new VerificationToken(token, user);
+        verificationTokenRepository.save(verificationToken);
+        mailService.sendVerificationEmail(user.getEmail(), token);
+
     }
 
     @Override
@@ -142,6 +166,27 @@ public class UserServiceImpl implements UserService {
             throw new ResourceNotFoundException(id);
         }
         return "User deleted";
+    }
+
+    @Override
+    @Transactional
+    public ResponseEntity<String> confirmUser(String token) {
+
+        VerificationToken verificationToken = verificationTokenRepository.findByToken(token)
+                .orElseThrow(() -> new ResourceNotFoundException(token));
+
+        if(verificationToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+            return ResponseEntity.badRequest().body("The validity period has expired");
+        }
+
+        User user = verificationToken.getUser();
+
+        user.setEnabled(true);
+        userRepository.save(user);
+
+        verificationTokenRepository.delete(verificationToken);
+
+        return ResponseEntity.ok("Account has been successfully verified!");
     }
 
     public User findByUserUpdateDTO(UserUpdateDTO userUpdateDTO)

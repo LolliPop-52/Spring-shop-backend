@@ -46,4 +46,7 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL) 
     private Bucket bucket;
 
+    @Builder.Default
+    private boolean enabled = false;
+
 }

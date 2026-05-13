@@ -8,12 +8,16 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.util.List;
 import java.util.Set;
 
 @SpringBootApplication
 @RequiredArgsConstructor
+@EnableScheduling
+@EnableAsync
 public class SpringShopApplication {
 
     private final ProductCreator productCreator;
@@ -22,12 +26,5 @@ public class SpringShopApplication {
 
         SpringApplication.run(SpringShopApplication.class, args);
 
-
-    }
-
-    @Bean
-    public CommandLineRunner dataInit(ProductCreator productCreator) {
-        return args -> {
-        };
     }
 }
