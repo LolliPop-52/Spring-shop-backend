@@ -20,8 +20,6 @@ public class ProductCreator {
 
         BigDecimal productPrice = new BigDecimal(price);
 
-        // Проверяем через сервис или напрямую через репозиторий (если он тут доступен)
-        // Здесь я предполагаю, что ты добавишь метод exists в ProductService
         if (productService.exists(title, productPrice, description)) {
             return "Product '" + title + "' already exists, skipping...";
         }
