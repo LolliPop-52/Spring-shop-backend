@@ -8,6 +8,7 @@ import com.example.spring_shop.service.PickupPointService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -31,11 +32,12 @@ public class OrderController {
 
     @GetMapping("/orders")
     public ResponseEntity<ActiveOrdersDTO> getMyOrders(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(ActiveOrdersDTO.builder().orders(orderService.getAllActiveOrder(userDetails.getUsername())).build());
+        return ResponseEntity.ok(orderService.getAllActiveOrder(userDetails.getUsername()));
     }
 
     @GetMapping("/pickup-points")
-    public ResponseEntity<Page<PickupPointDTO>> getAllPickupPoints(Pageable pageable) {
-        return ResponseEntity.ok(pickupPointService.findAllPickupPoints(pageable));
+    public ResponseEntity<PagedModel<PickupPointDTO>> getAllPickupPoints(Pageable pageable) {
+        return ResponseEntity.ok(new PagedModel<>(
+                pickupPointService.findAllPickupPoints(pageable)));
     }
 }

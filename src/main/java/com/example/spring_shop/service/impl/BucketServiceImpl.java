@@ -1,4 +1,4 @@
-package com.example.spring_shop.service;
+package com.example.spring_shop.service.impl;
 
 import com.example.spring_shop.domain.Bucket;
 import com.example.spring_shop.domain.BucketItem;
@@ -10,18 +10,19 @@ import com.example.spring_shop.mapper.BucketMapper;
 import com.example.spring_shop.repository.BucketItemRepository;
 import com.example.spring_shop.repository.BucketRepository;
 import com.example.spring_shop.repository.ProductRepository;
+import com.example.spring_shop.service.BucketService;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class BucketServiceImpl implements BucketService{
+public class BucketServiceImpl implements BucketService {
 
 
     private final BucketMapper bucketMapper;
@@ -29,13 +30,12 @@ public class BucketServiceImpl implements BucketService{
 
     private final ProductRepository productRepository;
     private final BucketRepository bucketRepository;
-    private final BucketItemRepository bucketItemRepository;
 
 
 
     @Override
     @Transactional
-    public BucketDTO addItemToBucket(ModifyBucketItemDTO newBucketItemDTO) {
+    public BucketDTO addItemToBucket(@NonNull ModifyBucketItemDTO newBucketItemDTO) {
 
         // amount > 0
         if (newBucketItemDTO.getAmount().compareTo(BigDecimal.ZERO) < 0) {
@@ -50,7 +50,6 @@ public class BucketServiceImpl implements BucketService{
 
             Product newProduct = productRepository.findById(newBucketItemDTO.getProductId())
                     .orElseThrow(() -> new ResourceNotFoundException(newBucketItemDTO.getProductId()));
-
 
             bucket.addItem(
                     BucketItem.builder()

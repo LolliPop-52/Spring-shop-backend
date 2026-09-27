@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@Builder(toBuilder = true)
 public class CreatorNewOrderDetailsDTO {
     private Long productId;
     private BigDecimal priceOnOrder;

@@ -14,6 +14,7 @@ public class BucketMapper {
 
     private final BucketItemMapper bucketItemMapper;
 
+
     public BucketDTO toDto(Bucket bucket) {
         if (bucket == null)
             return null;

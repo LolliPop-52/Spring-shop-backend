@@ -1,12 +1,11 @@
 package com.example.spring_shop.service;
 
 import javax.naming.AuthenticationException;
-import com.example.spring_shop.domain.User;
+
 import com.example.spring_shop.dto.UserDTO;
 import com.example.spring_shop.dto.UserUpdateDTO;
 import com.example.spring_shop.security.JwtAuthenticationDTO;
 import com.example.spring_shop.security.RefreshTokenDTO;
-import org.springframework.http.ResponseEntity;
 
 public interface UserService {
 
@@ -34,5 +33,5 @@ public interface UserService {
 
     String deleteUserById(Long id);
 
-    ResponseEntity<String> confirmUser(String token);
+    boolean confirmUser(String token);
 }

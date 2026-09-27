@@ -1,4 +1,4 @@
-package com.example.spring_shop.service;
+package com.example.spring_shop.service.impl;
 
 import com.example.spring_shop.domain.Category;
 import com.example.spring_shop.domain.Product;
@@ -8,11 +8,10 @@ import com.example.spring_shop.exception_handler.ResourceNotFoundException;
 import com.example.spring_shop.mapper.ProductMapper;
 import com.example.spring_shop.repository.CategoryRepository;
 import com.example.spring_shop.repository.ProductRepository;
+import com.example.spring_shop.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

@@ -1,4 +1,4 @@
-package com.example.spring_shop.service;
+package com.example.spring_shop.service.impl;
 
 import javax.naming.AuthenticationException;
 
@@ -6,8 +6,7 @@ import com.example.spring_shop.dto.UserUpdateDTO;
 import com.example.spring_shop.mail.MailService;
 import com.example.spring_shop.mail.VerificationToken;
 import com.example.spring_shop.repository.VerificationTokenRepository;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
+import com.example.spring_shop.service.UserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,12 +21,10 @@ import com.example.spring_shop.repository.UserRepository;
 import com.example.spring_shop.security.JwtAuthenticationDTO;
 import com.example.spring_shop.security.JwtService;
 import com.example.spring_shop.security.RefreshTokenDTO;
-import com.example.spring_shop.security.UserCredentialsDTO;
 
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
 import java.util.UUID;
 
 
@@ -51,16 +48,47 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public JwtAuthenticationDTO signIn(UserDTO userDTO)
             throws AuthenticationException {
-        UserDTO signUserDTO = getSingInUser(userDTO);
-        return jwtService.generateAuthToken(signUserDTO.getEmail());
+
+        User user = userRepository.findFirstByEmail(userDTO.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException(userDTO.getEmail()));
+        if(passwordEncoder.matches(userDTO.getPassword(), user.getPassword())){
+            UserDTO signUserDTO = userMapper.toDTO(user);
+            return jwtService.generateAuthToken(signUserDTO.getEmail());
+        } else {
+            throw new AuthenticationException("uncorrected password");
+        }
     }
 
     @Override
     @Transactional
     public JwtAuthenticationDTO signUp(UserDTO userDTO)
             throws AuthenticationException {
-        addUser(userDTO);
-        return jwtService.generateAuthToken(userDTO.getEmail());
+
+        if(!(userDTO.getPassword().equals(userDTO.getConfirmPassword()))){
+            throw new AuthenticationException("passwords don't match");
+        }
+
+        if(userRepository.existsByEmail(userDTO.getEmail())){
+            throw new AuthenticationException("email has already been registered");
+        }
+
+        User user = userMapper.toEntity(userDTO);
+        user.setRole(UserRole.CLIENT);
+
+        user.setEnabled(false);
+
+        Bucket bucket = new Bucket();
+        user.setBucket(bucket);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        bucket.setUser(user);
+        userRepository.save(user);
+
+        String token = UUID.randomUUID().toString();
+        VerificationToken verificationToken = new VerificationToken(token, user);
+        verificationTokenRepository.save(verificationToken);
+        mailService.sendVerificationEmail(user.getEmail(), token);
+
+        return jwtService.generateAuthToken(user.getEmail());
     }
 
     @Override
@@ -102,16 +130,6 @@ public class UserServiceImpl implements UserService {
         throw new AuthenticationException("Invalid refresh token");
     }
 
-    private UserDTO getSingInUser(UserDTO userDTO) throws AuthenticationException {
-        User user = userRepository.findFirstByEmail(userDTO.getEmail())
-                .orElseThrow(() -> new ResourceNotFoundException(userDTO.getEmail()));
-        if(passwordEncoder.matches(userDTO.getPassword(), user.getPassword())){
-            return userMapper.toDTO(user);
-        } else {
-            throw new AuthenticationException("uncorrected password");
-        }
-    }
-
     @Override
     @Transactional
     public UserDTO getUserById(Long id) {
@@ -128,35 +146,6 @@ public class UserServiceImpl implements UserService {
         return  userMapper.toDTO(user);
     }
 
-
-    private void addUser(UserDTO userDTO) throws AuthenticationException {
-
-        if(!(userDTO.getPassword().equals(userDTO.getConfirmPassword()))){
-            throw new AuthenticationException("passwords don't match");
-        }
-
-        if(userRepository.existsByEmail(userDTO.getEmail())){
-            throw new AuthenticationException("email has already been registered");
-        }
-
-        User user = userMapper.toEntity(userDTO);
-        user.setRole(UserRole.CLIENT);
-
-        user.setEnabled(false);
-
-        Bucket bucket = new Bucket();
-        user.setBucket(bucket);
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        bucket.setUser(user);
-        userRepository.save(user);
-
-        String token = UUID.randomUUID().toString();
-        VerificationToken verificationToken = new VerificationToken(token, user);
-        verificationTokenRepository.save(verificationToken);
-        mailService.sendVerificationEmail(user.getEmail(), token);
-
-    }
-
     @Override
     @Transactional
     public String deleteUserById(Long id) {
@@ -170,13 +159,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public ResponseEntity<String> confirmUser(String token) {
+    public boolean confirmUser(String token) {
 
         VerificationToken verificationToken = verificationTokenRepository.findByToken(token)
                 .orElseThrow(() -> new ResourceNotFoundException(token));
 
         if(verificationToken.getExpiryDate().isBefore(LocalDateTime.now())) {
-            return ResponseEntity.badRequest().body("The validity period has expired");
+            return false;
         }
 
         User user = verificationToken.getUser();
@@ -186,7 +175,7 @@ public class UserServiceImpl implements UserService {
 
         verificationTokenRepository.delete(verificationToken);
 
-        return ResponseEntity.ok("Account has been successfully verified!");
+        return true;
     }
 
     public User findByUserUpdateDTO(UserUpdateDTO userUpdateDTO)

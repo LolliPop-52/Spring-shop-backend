@@ -3,7 +3,7 @@ spring:
     hibernate:
       ddl-auto: update
   datasource:
-    url: ${DB_URL}
+    url: ${SPRING_DATASOURCE_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
   security:
@@ -21,14 +21,12 @@ spring:
     password: ${SPRING_MAIL_PASSWORD}
     properties:
       mail:
-        debug: false
-        transport:
-          protocol: smtp
         smtp:
           auth: true
           starttls:
             enable: true
-
+            required: true
+        debug: true
 security:
   jwt:
     secret: ${JWT_SECRET}

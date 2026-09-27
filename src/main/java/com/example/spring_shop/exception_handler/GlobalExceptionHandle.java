@@ -17,14 +17,14 @@ public class GlobalExceptionHandle {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ResponseEntity<String> handlerException(AuthenticationException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body("Authentication Failed" + ex.getMessage());
+                .body("Authentication Failed: " + ex.getMessage());
     } 
 
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ResponseEntity<String> handleAccessDenied(AccessDeniedException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body("An error occurred" + ex.getMessage());
+                .body("An error occurred: " + ex.getMessage());
     }
 
 

@@ -1,23 +1,22 @@
-package com.example.spring_shop.service;
+package com.example.spring_shop.service.impl;
 
 
 import com.example.spring_shop.domain.*;
-import com.example.spring_shop.dto.BucketItemDTO;
+import com.example.spring_shop.dto.ActiveOrdersDTO;
 import com.example.spring_shop.dto.CreatorNewOrderDTO;
 import com.example.spring_shop.dto.OrderDTO;
-import com.example.spring_shop.dto.OrderDetailsDTO;
 import com.example.spring_shop.exception_handler.ResourceNotFoundException;
 import com.example.spring_shop.mapper.OrderMapper;
 import com.example.spring_shop.repository.*;
+import com.example.spring_shop.service.BucketService;
+import com.example.spring_shop.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +39,13 @@ public class OrderServiceImpl implements OrderService {
     public OrderDTO createOrder(CreatorNewOrderDTO creatorNewOrderDTO) {
 
         Order newOrder = new Order();
+
+        newOrder.setUser(userRepository.findFirstByEmail(creatorNewOrderDTO.getUserEmail())
+                .orElseThrow(() -> new ResourceNotFoundException(creatorNewOrderDTO.getUserEmail())));
+        newOrder.setPickupPoint(pickupPointRepository.findById(creatorNewOrderDTO.getAddressId())
+                .orElseThrow(() -> new ResourceNotFoundException(creatorNewOrderDTO.getUserEmail())));
+        newOrder.setPaymentStatus(PaymentStatus.UNPAID);
+        newOrder.setDeliveryStatus(DeliveryStatus.PROCESSING);
         
         List<OrderDetails> orderDetailsList = creatorNewOrderDTO.getOrderDetails().stream()
                 .map(c -> {
@@ -61,13 +67,6 @@ public class OrderServiceImpl implements OrderService {
                     }
                 }).toList();
 
-        newOrder.setUser(userRepository.findFirstByEmail(creatorNewOrderDTO.getUserEmail())
-                .orElseThrow(() -> new ResourceNotFoundException(creatorNewOrderDTO.getUserEmail())));
-        newOrder.setPickupPoint(pickupPointRepository.findById(creatorNewOrderDTO.getAddressId())
-                .orElseThrow(() -> new ResourceNotFoundException(creatorNewOrderDTO.getUserEmail())));
-        newOrder.setPaymentStatus(PaymentStatus.UNPAID);
-        newOrder.setDeliveryStatus(DeliveryStatus.PROCESSING);
-
         for (OrderDetails orderDetails : orderDetailsList) {
             newOrder.addDetails(orderDetails);
         }
@@ -82,9 +81,12 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<OrderDTO> getAllActiveOrder(String email) {
-        return orderRepository.findAllByUserEmail(email).stream()
-                .map(orderMapper::toDto)
-                .toList();
+    public ActiveOrdersDTO getAllActiveOrder(String email) {
+        return new ActiveOrdersDTO()
+                .toBuilder()
+                .orders(
+                        orderRepository.findAllByUserEmail(email).stream()
+                        .map(orderMapper::toDto).toList())
+                .build();
     }
 }

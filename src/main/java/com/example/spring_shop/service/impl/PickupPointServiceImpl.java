@@ -1,10 +1,10 @@
-package com.example.spring_shop.service;
+package com.example.spring_shop.service.impl;
 
 import com.example.spring_shop.domain.PickupPoint;
-import com.example.spring_shop.domain.Product;
 import com.example.spring_shop.dto.PickupPointDTO;
 import com.example.spring_shop.mapper.PickupPointMapper;
 import com.example.spring_shop.repository.PickupPointRepository;
+import com.example.spring_shop.service.PickupPointService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

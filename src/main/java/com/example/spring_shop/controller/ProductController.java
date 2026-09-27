@@ -7,6 +7,7 @@ import com.example.spring_shop.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,13 +29,15 @@ public class ProductController {
     }
 
     @GetMapping()
-    public ResponseEntity<Page<ProductDTO>> getAllProducts(Pageable pageable) {
-        return ResponseEntity.ok(productService.findAllProducts(pageable));
+    public ResponseEntity<PagedModel<ProductDTO>> getAllProducts(Pageable pageable) {
+        return ResponseEntity.ok(new PagedModel<>(
+                productService.findAllProducts(pageable)));
     }
 
     @GetMapping("/category")
     public ResponseEntity<Page<CategoryDTO>> getAllCategories(Pageable pageable) {
         return ResponseEntity.ok(productService.findAllCategories(pageable));
     }
+
 }
 

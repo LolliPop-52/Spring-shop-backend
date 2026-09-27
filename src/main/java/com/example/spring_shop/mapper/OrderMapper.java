@@ -2,6 +2,7 @@ package com.example.spring_shop.mapper;
 
 import com.example.spring_shop.domain.DeliveryStatus;
 import com.example.spring_shop.domain.Order;
+import com.example.spring_shop.domain.PaymentStatus;
 import com.example.spring_shop.dto.OrderDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -21,10 +22,9 @@ public class OrderMapper {
                         .map(orderDetailsMapper::toDTO).toList())
                 .totalSum(order.getTotalPrice())
                 .deliveryStatus(DeliveryStatus.PROCESSING.name())
-                .paymentStatus(DeliveryStatus.PROCESSING.name())
+                .paymentStatus(PaymentStatus.UNPAID.name())
                 .createdTime(order.getCreatedTime())
                 .updatedTime(order.getUpdatedTime())
                 .build();
     }
-
 }

@@ -5,6 +5,7 @@ import javax.naming.AuthenticationException;
 
 import com.example.spring_shop.dto.UserDTO;
 import com.example.spring_shop.mail.VerificationToken;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,23 +22,26 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthController {
+
     private final UserService userService;
 
     @PostMapping("/sign-in")
     public ResponseEntity<JwtAuthenticationDTO> signIn(@RequestBody UserDTO userDTO)
             throws AuthenticationException {
-        return ResponseEntity.ok(userService.signIn(userDTO));
+        return new ResponseEntity<>(userService.signIn(userDTO), HttpStatus.OK);
     }
 
     @PostMapping("/sign-up")
     public ResponseEntity<JwtAuthenticationDTO> signUp(@RequestBody UserDTO userDTO)
             throws AuthenticationException {
-        return ResponseEntity.ok(userService.signUp(userDTO));
+        return new ResponseEntity<>(userService.signUp(userDTO), HttpStatus.CREATED);
     }
 
     @GetMapping("/confirm")
     public ResponseEntity<String> confirmRegistration(@RequestParam("token") String token){
-        return userService.confirmUser(token);
+        return userService.confirmUser(token)
+                ? ResponseEntity.ok().body("Account has been successfully verified!")
+                : ResponseEntity.badRequest().body("The validity period has expired");
     }
 
     @PostMapping("/refresh")

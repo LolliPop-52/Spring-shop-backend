@@ -2,20 +2,18 @@ package com.example.spring_shop.domain;
 
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@Builder(toBuilder = true)
 @Entity
 @Table(name = "order_details")
 public class OrderDetails {
@@ -53,4 +51,30 @@ public class OrderDetails {
     private PaymentStatus paymentStatus;
 
 
+    @Override
+    public String toString() {
+        return "OrderDetails{" +
+                "id=" + id +
+                ", orderId=" + order.getId() +
+                ", productId=" + product.getId() +
+                ", amount=" + amount +
+                ", totalPrice=" + totalPrice +
+                ", createdTime=" + createdTime +
+                ", deliveryStatus=" + deliveryStatus +
+                ", paymentType=" + paymentType +
+                ", paymentStatus=" + paymentStatus +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        OrderDetails that = (OrderDetails) o;
+        return Objects.equals(id, that.id) && Objects.equals(product.getId(), that.product.getId()) && Objects.equals(amount, that.amount) && Objects.equals(totalPrice, that.totalPrice) && paymentType == that.paymentType && paymentStatus == that.paymentStatus;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, product.getId(), amount, totalPrice, paymentType, paymentStatus);
+    }
 }

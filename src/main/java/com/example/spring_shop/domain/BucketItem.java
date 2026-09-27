@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@Builder(toBuilder = true)
 @Entity
 @Table(name = "bucket_items")
 public class BucketItem {
@@ -29,6 +29,7 @@ public class BucketItem {
 
     @ManyToOne
     @JoinColumn(name = "bucket_id")
+    @ToString.Include(name = "bucket_id")
     private Bucket bucket;
 
     @Column(nullable = false)

@@ -9,13 +9,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.transaction.annotation.Transactional;
 
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@Builder(toBuilder = true)
 @Entity
 @Table(name = "buckets")
 public class Bucket {
@@ -57,5 +58,14 @@ public class Bucket {
         return items.stream()
                 .map(BucketItem::getTotalPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    @Override
+    public String toString() {
+        return "Bucket{" +
+                "id=" + id +
+                ", user=" + user +
+                ", items=" + items +
+                '}';
     }
 }
