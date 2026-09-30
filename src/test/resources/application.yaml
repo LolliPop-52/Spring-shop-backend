@@ -27,6 +27,8 @@ spring:
             enable: true
             required: true
         debug: true
+server:
+  forward-headers-strategy: native
 security:
   jwt:
     secret: ${JWT_SECRET}

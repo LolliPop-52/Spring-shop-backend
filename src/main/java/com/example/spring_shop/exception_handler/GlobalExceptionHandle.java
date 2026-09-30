@@ -2,6 +2,7 @@ package com.example.spring_shop.exception_handler;
 
 import javax.naming.AuthenticationException;
 
+import com.example.spring_shop.exception_handler.RuntimeException.ResourceNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,14 +15,12 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public class GlobalExceptionHandle {
 
     @ExceptionHandler(AuthenticationException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ResponseEntity<String> handlerException(AuthenticationException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body("Authentication Failed: " + ex.getMessage());
     } 
 
     @ExceptionHandler(AccessDeniedException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
     public ResponseEntity<String> handleAccessDenied(AccessDeniedException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body("An error occurred: " + ex.getMessage());
@@ -39,5 +38,9 @@ public class GlobalExceptionHandle {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body("Price mismatch for product");
     }
-    
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<String> handleResourceNotFound(ResourceNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
 }

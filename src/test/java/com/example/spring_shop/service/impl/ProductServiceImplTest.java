@@ -4,7 +4,8 @@ import com.example.spring_shop.domain.Category;
 import com.example.spring_shop.domain.Product;
 import com.example.spring_shop.dto.CategoryDTO;
 import com.example.spring_shop.dto.ProductDTO;
-import com.example.spring_shop.exception_handler.ResourceNotFoundException;
+import com.example.spring_shop.exception_handler.RuntimeException.ProductNotFoundException;
+import com.example.spring_shop.exception_handler.RuntimeException.ResourceNotFoundException;
 import com.example.spring_shop.fixture.TestDataFactory;
 import com.example.spring_shop.mapper.ProductMapper;
 import com.example.spring_shop.repository.CategoryRepository;
@@ -20,7 +21,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-import java.lang.module.ResolutionException;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -119,8 +119,8 @@ class ProductServiceImplTest {
         when(productRepository.findById(id)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> productService.getProductById(id))
-                .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("Resource with id: " + id + " not found");
+                .isInstanceOf(ProductNotFoundException.class)
+                .hasMessage("Product with id: " + id + " not found");
 
         verify(productMapper, never()).toDto(product);
 
@@ -146,8 +146,8 @@ class ProductServiceImplTest {
         when(productRepository.findById(id)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> productService.getProductEntityById(id))
-                .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("Resource with id: " + id + " not found");
+                .isInstanceOf(ProductNotFoundException.class)
+                .hasMessage("Product with id: " + id + " not found");
 
         verify(productRepository, times(1)).findById(id);
         verifyNoInteractions(productMapper);

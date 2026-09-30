@@ -3,7 +3,9 @@ package com.example.spring_shop.service.impl;
 import com.example.spring_shop.domain.User;
 import com.example.spring_shop.domain.UserRole;
 import com.example.spring_shop.dto.UserDTO;
-import com.example.spring_shop.exception_handler.ResourceNotFoundException;
+import com.example.spring_shop.exception_handler.RuntimeException.ResourceNotFoundException;
+import com.example.spring_shop.exception_handler.RuntimeException.UserNotFoundException;
+import com.example.spring_shop.exception_handler.RuntimeException.VerificationTokenNotFoundException;
 import com.example.spring_shop.fixture.TestDataFactory;
 import com.example.spring_shop.mail.MailService;
 import com.example.spring_shop.mail.VerificationToken;
@@ -91,8 +93,8 @@ class UserServiceImplTest {
         when(userRepository.findFirstByEmail(user.getEmail())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.signIn(userDTO))
-                .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("Resource with name: " + user.getEmail() + " not found");
+                .isInstanceOf(UserNotFoundException.class)
+                .hasMessage("User with email: " + user.getEmail() + " not found");
 
         verifyNoInteractions(jwtService);
     }
@@ -240,8 +242,8 @@ class UserServiceImplTest {
         when(userRepository.findById(testId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.getUserById(testId))
-                .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("Resource with id: " + testId + " not found");
+                .isInstanceOf(UserNotFoundException.class)
+                .hasMessage("User with id: " + testId + " not found");
 
         verify(userMapper, never()).toDTO(any(User.class));
     }
@@ -267,8 +269,8 @@ class UserServiceImplTest {
         when(userRepository.findFirstByEmail(user.getEmail())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.getUserByEmail(user.getEmail()))
-                .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("Resource with name: " + user.getEmail() + " not found");
+                .isInstanceOf(UserNotFoundException.class)
+                .hasMessage("User with email: " + user.getEmail() + " not found");
 
         verify(userMapper, never()).toDTO(any(User.class));
     }
@@ -290,8 +292,8 @@ class UserServiceImplTest {
         when(userRepository.existsById(99L)).thenReturn(false);
 
         assertThatThrownBy(() -> userService.deleteUserById(99L))
-                .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("Resource with id: " + 99L + " not found");
+                .isInstanceOf(UserNotFoundException.class)
+                .hasMessage("User with id: " + 99L + " not found");
 
         verify(userRepository, never()).deleteById(anyLong());
     }
@@ -339,8 +341,8 @@ class UserServiceImplTest {
         when(verificationTokenRepository.findByToken(token)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.confirmUser(token))
-                .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("Resource with name: " + token + " not found");
+                .isInstanceOf(VerificationTokenNotFoundException.class)
+                .hasMessage("VerificationToken with token: " + token + " not found");
 
         verifyNoInteractions(userRepository);
         verify(verificationTokenRepository, never()).delete(any(VerificationToken.class));

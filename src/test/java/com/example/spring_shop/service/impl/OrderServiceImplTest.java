@@ -5,15 +5,15 @@ import com.example.spring_shop.domain.Order;
 import com.example.spring_shop.dto.CreatorNewOrderDTO;
 import com.example.spring_shop.dto.CreatorNewOrderDetailsDTO;
 import com.example.spring_shop.dto.OrderDTO;
-import com.example.spring_shop.dto.OrderDetailsDTO;
-import com.example.spring_shop.exception_handler.ResourceNotFoundException;
+import com.example.spring_shop.exception_handler.RuntimeException.ProductNotFoundException;
+import com.example.spring_shop.exception_handler.RuntimeException.ResourceNotFoundException;
+import com.example.spring_shop.exception_handler.RuntimeException.UserNotFoundException;
 import com.example.spring_shop.fixture.TestDataFactory;
 import com.example.spring_shop.mapper.OrderMapper;
 import com.example.spring_shop.repository.OrderRepository;
 import com.example.spring_shop.repository.PickupPointRepository;
 import com.example.spring_shop.repository.ProductRepository;
 import com.example.spring_shop.repository.UserRepository;
-import org.aspectj.weaver.ast.Or;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -25,7 +25,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -175,8 +174,8 @@ class OrderServiceImplTest {
         when(pickupPointRepository.findById(creatorNewOrderDTO.getAddressId())).thenReturn(Optional.of(pickupPoint));
 
         assertThatThrownBy(() -> orderService.createOrder(creatorNewOrderDTO))
-                .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("Resource with id: " + TestDataFactory.DEFAULT_ID + " not found");
+                .isInstanceOf(ProductNotFoundException.class)
+                .hasMessage("Product with id: " + TestDataFactory.DEFAULT_ID + " not found");
 
         verify(orderRepository, never()).save(any(Order.class));
 
@@ -189,8 +188,8 @@ class OrderServiceImplTest {
         when(userRepository.findFirstByEmail(creatorNewOrderDTO.getUserEmail())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> orderService.createOrder(creatorNewOrderDTO))
-                .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("Resource with name: " + creatorNewOrderDTO.getUserEmail() + " not found");
+                .isInstanceOf(UserNotFoundException.class)
+                .hasMessage("User with email: " + creatorNewOrderDTO.getUserEmail() + " not found");
 
         verify(orderRepository, never()).save(any(Order.class));
 
@@ -204,8 +203,8 @@ class OrderServiceImplTest {
         when(pickupPointRepository.findById(creatorNewOrderDTO.getAddressId())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> orderService.createOrder(creatorNewOrderDTO))
-                .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("Resource with name: " + creatorNewOrderDTO.getUserEmail() + " not found");
+                .isInstanceOf(UserNotFoundException.class)
+                .hasMessage("User with email: " + creatorNewOrderDTO.getUserEmail() + " not found");
 
         verify(orderRepository, never()).save(any(Order.class));
 

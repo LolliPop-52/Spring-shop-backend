@@ -5,7 +5,9 @@ import com.example.spring_shop.domain.*;
 import com.example.spring_shop.dto.ActiveOrdersDTO;
 import com.example.spring_shop.dto.CreatorNewOrderDTO;
 import com.example.spring_shop.dto.OrderDTO;
-import com.example.spring_shop.exception_handler.ResourceNotFoundException;
+import com.example.spring_shop.exception_handler.RuntimeException.ProductNotFoundException;
+import com.example.spring_shop.exception_handler.RuntimeException.ResourceNotFoundException;
+import com.example.spring_shop.exception_handler.RuntimeException.UserNotFoundException;
 import com.example.spring_shop.mapper.OrderMapper;
 import com.example.spring_shop.repository.*;
 import com.example.spring_shop.service.BucketService;
@@ -41,16 +43,16 @@ public class OrderServiceImpl implements OrderService {
         Order newOrder = new Order();
 
         newOrder.setUser(userRepository.findFirstByEmail(creatorNewOrderDTO.getUserEmail())
-                .orElseThrow(() -> new ResourceNotFoundException(creatorNewOrderDTO.getUserEmail())));
+                .orElseThrow(() -> new UserNotFoundException(creatorNewOrderDTO.getUserEmail())));
         newOrder.setPickupPoint(pickupPointRepository.findById(creatorNewOrderDTO.getAddressId())
-                .orElseThrow(() -> new ResourceNotFoundException(creatorNewOrderDTO.getUserEmail())));
+                .orElseThrow(() -> new UserNotFoundException(creatorNewOrderDTO.getUserEmail())));
         newOrder.setPaymentStatus(PaymentStatus.UNPAID);
         newOrder.setDeliveryStatus(DeliveryStatus.PROCESSING);
         
         List<OrderDetails> orderDetailsList = creatorNewOrderDTO.getOrderDetails().stream()
                 .map(c -> {
                     Product curProduct = productRepository.findById(c.getProductId())
-                            .orElseThrow(() -> new ResourceNotFoundException(creatorNewOrderDTO.getAddressId()));
+                            .orElseThrow(() -> new ProductNotFoundException(c.getProductId()));
                     if(curProduct.getPrice().compareTo(c.getPriceOnOrder()) == 0){
                         return OrderDetails.builder()
                                 .order(newOrder)

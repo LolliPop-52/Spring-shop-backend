@@ -4,10 +4,11 @@ import com.example.spring_shop.domain.Bucket;
 import com.example.spring_shop.domain.BucketItem;
 import com.example.spring_shop.domain.Product;
 import com.example.spring_shop.dto.*;
-import com.example.spring_shop.exception_handler.ResourceNotFoundException;
+import com.example.spring_shop.exception_handler.RuntimeException.BucketNotFoundException;
+import com.example.spring_shop.exception_handler.RuntimeException.ProductNotFoundException;
+import com.example.spring_shop.exception_handler.RuntimeException.ResourceNotFoundException;
 import com.example.spring_shop.mapper.BucketItemMapper;
 import com.example.spring_shop.mapper.BucketMapper;
-import com.example.spring_shop.repository.BucketItemRepository;
 import com.example.spring_shop.repository.BucketRepository;
 import com.example.spring_shop.repository.ProductRepository;
 import com.example.spring_shop.service.BucketService;
@@ -49,7 +50,7 @@ public class BucketServiceImpl implements BucketService {
         if(existingItem.isEmpty()){
 
             Product newProduct = productRepository.findById(newBucketItemDTO.getProductId())
-                    .orElseThrow(() -> new ResourceNotFoundException(newBucketItemDTO.getProductId()));
+                        .orElseThrow(() -> new ProductNotFoundException(newBucketItemDTO.getProductId()));
 
             bucket.addItem(
                     BucketItem.builder()
@@ -75,7 +76,7 @@ public class BucketServiceImpl implements BucketService {
 
 
         BucketItem bucketItem = getBucketItemEntityOnBucketByProductId(bucket, deleteBucketItemDTO.getProductId())
-                .orElseThrow(() -> new ResourceNotFoundException(deleteBucketItemDTO.getProductId()));
+                .orElseThrow(() -> new ProductNotFoundException(deleteBucketItemDTO.getProductId()));
 
         BigDecimal amountToDelete = deleteBucketItemDTO.getAmount().abs();
 
@@ -112,7 +113,7 @@ public class BucketServiceImpl implements BucketService {
     @Transactional
     public BucketDTO clearOrderedItems(CreatorNewOrderDTO creatorNewOrderDTO){
         Bucket bucket = bucketRepository.findByUserEmail(creatorNewOrderDTO.getUserEmail())
-                .orElseThrow(() -> new ResourceNotFoundException(creatorNewOrderDTO.getUserEmail()));
+                .orElseThrow(() -> new BucketNotFoundException(creatorNewOrderDTO.getUserEmail()));
         for(CreatorNewOrderDetailsDTO orderDetail : creatorNewOrderDTO.getOrderDetails()){
             deleteItemOnBucket(ModifyBucketItemDTO.builder()
                     .userEmail(creatorNewOrderDTO.getUserEmail())
@@ -132,7 +133,7 @@ public class BucketServiceImpl implements BucketService {
 
     private Bucket getBucketEntityByUser(String email) {
         return bucketRepository.findByUserEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException(email));
+                .orElseThrow(() -> new BucketNotFoundException(email));
     }
 
     private Optional<BucketItem> getBucketItemEntityOnBucketByProductId(Bucket bucket, Long id){

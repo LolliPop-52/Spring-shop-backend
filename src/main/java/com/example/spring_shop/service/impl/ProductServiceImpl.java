@@ -4,7 +4,8 @@ import com.example.spring_shop.domain.Category;
 import com.example.spring_shop.domain.Product;
 import com.example.spring_shop.dto.CategoryDTO;
 import com.example.spring_shop.dto.ProductDTO;
-import com.example.spring_shop.exception_handler.ResourceNotFoundException;
+import com.example.spring_shop.exception_handler.RuntimeException.ProductNotFoundException;
+import com.example.spring_shop.exception_handler.RuntimeException.ResourceNotFoundException;
 import com.example.spring_shop.mapper.ProductMapper;
 import com.example.spring_shop.repository.CategoryRepository;
 import com.example.spring_shop.repository.ProductRepository;
@@ -55,14 +56,14 @@ public class ProductServiceImpl implements ProductService {
     public ProductDTO getProductById(Long id) {
         return productRepository.findById(id)
                 .map(productMapper::toDto)
-                .orElseThrow(() -> new ResourceNotFoundException(id));
+                .orElseThrow(() -> new ProductNotFoundException(id));
     }
 
     @Override
     @Transactional(readOnly = true)
     public Product getProductEntityById(Long id){
         return productRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(id));
+                .orElseThrow(() -> new ProductNotFoundException(id));
     }
 
     @Override

@@ -3,10 +3,13 @@ package com.example.spring_shop.service.impl;
 import javax.naming.AuthenticationException;
 
 import com.example.spring_shop.dto.UserUpdateDTO;
+import com.example.spring_shop.exception_handler.RuntimeException.UserNotFoundException;
+import com.example.spring_shop.exception_handler.RuntimeException.VerificationTokenNotFoundException;
 import com.example.spring_shop.mail.MailService;
 import com.example.spring_shop.mail.VerificationToken;
 import com.example.spring_shop.repository.VerificationTokenRepository;
 import com.example.spring_shop.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +18,6 @@ import com.example.spring_shop.domain.Bucket;
 import com.example.spring_shop.domain.User;
 import com.example.spring_shop.domain.UserRole;
 import com.example.spring_shop.dto.UserDTO;
-import com.example.spring_shop.exception_handler.ResourceNotFoundException;
 import com.example.spring_shop.mapper.UserMapper;
 import com.example.spring_shop.repository.UserRepository;
 import com.example.spring_shop.security.JwtAuthenticationDTO;
@@ -28,6 +30,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -50,7 +53,7 @@ public class UserServiceImpl implements UserService {
             throws AuthenticationException {
 
         User user = userRepository.findFirstByEmail(userDTO.getEmail())
-                .orElseThrow(() -> new ResourceNotFoundException(userDTO.getEmail()));
+                .orElseThrow(() -> new UserNotFoundException(userDTO.getEmail()));
         if(passwordEncoder.matches(userDTO.getPassword(), user.getPassword())){
             UserDTO signUserDTO = userMapper.toDTO(user);
             return jwtService.generateAuthToken(signUserDTO.getEmail());
@@ -123,18 +126,17 @@ public class UserServiceImpl implements UserService {
         String refreshToken = refreshTokenDTO.getRefreshToken();
         if (refreshToken != null && jwtService.validateJwtToken(refreshToken)) {
             User user = userRepository.findFirstByEmail(jwtService.getEmailFromToken(refreshToken))
-                    .orElseThrow(() -> new ResourceNotFoundException(
+                    .orElseThrow(() -> new UserNotFoundException(
                             jwtService.getEmailFromToken(refreshToken)));
             return jwtService.refreshBaseToken(user.getEmail(), refreshToken);
         }
         throw new AuthenticationException("Invalid refresh token");
     }
 
-    @Override
     @Transactional
     public UserDTO getUserById(Long id) {
         User user =
-                userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
+                userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
         return userMapper.toDTO(user);
     }
 
@@ -142,7 +144,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDTO getUserByEmail(String email) {
         User user = userRepository.findFirstByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException(email));
+                .orElseThrow(() -> new UserNotFoundException(email));
         return  userMapper.toDTO(user);
     }
 
@@ -152,7 +154,7 @@ public class UserServiceImpl implements UserService {
         if (userRepository.existsById(id)) {
             userRepository.deleteById(id);
         } else {
-            throw new ResourceNotFoundException(id);
+            throw new UserNotFoundException(id);
         }
         return "User deleted";
     }
@@ -160,30 +162,29 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public boolean confirmUser(String token) {
-
         VerificationToken verificationToken = verificationTokenRepository.findByToken(token)
-                .orElseThrow(() -> new ResourceNotFoundException(token));
-
-        if(verificationToken.getExpiryDate().isBefore(LocalDateTime.now())) {
-            return false;
-        }
+                .orElseThrow(() -> new VerificationTokenNotFoundException(token));
 
         User user = verificationToken.getUser();
+
+        if(verificationToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+            log.warn("<== [UserService.confirmUser() 400] Не удалось подтвердить почту '{}', истек срок действия ссылки (токена)", user.getEmail());
+            return false;
+        }
 
         user.setEnabled(true);
         userRepository.save(user);
 
         verificationTokenRepository.delete(verificationToken);
 
+        log.info("==> [UserService.confirmUser() 200] Почта '{}' успешно подтверждена", user.getEmail());
         return true;
     }
 
     public User findByUserUpdateDTO(UserUpdateDTO userUpdateDTO)
         throws AuthenticationException {
         return userRepository.findFirstByEmail(userUpdateDTO.getEmail())
-                .orElseThrow(() -> new ResourceNotFoundException(userUpdateDTO.getEmail()));
+                .orElseThrow(() -> new UserNotFoundException(userUpdateDTO.getEmail()));
     }
-
-
 
 }

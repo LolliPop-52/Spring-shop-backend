@@ -8,7 +8,9 @@ import com.example.spring_shop.dto.BucketDTO;
 import com.example.spring_shop.dto.BucketItemDTO;
 import com.example.spring_shop.dto.CreatorNewOrderDTO;
 import com.example.spring_shop.dto.ModifyBucketItemDTO;
-import com.example.spring_shop.exception_handler.ResourceNotFoundException;
+import com.example.spring_shop.exception_handler.RuntimeException.BucketNotFoundException;
+import com.example.spring_shop.exception_handler.RuntimeException.ProductNotFoundException;
+import com.example.spring_shop.exception_handler.RuntimeException.ResourceNotFoundException;
 import com.example.spring_shop.fixture.TestDataFactory;
 import com.example.spring_shop.mapper.BucketItemMapper;
 import com.example.spring_shop.mapper.BucketMapper;
@@ -92,15 +94,14 @@ class BucketServiceImplTest {
     @Test
     @DisplayName("addItemToBucket: Товар не найден при добавлении")
     void addItemToBucket_ProductNotFound_ThrowsException() {
-        //  ------------------------> ПЕРЕДЕЛАТЬ <-----------------------
         bucket.setItems(new ArrayList<>());
 
         when(bucketRepository.findByUserEmail(modifyBucketItemDTO.getUserEmail())).thenReturn(Optional.of(bucket));
         when(productRepository.findById(modifyBucketItemDTO.getProductId())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> bucketService.addItemToBucket(modifyBucketItemDTO))
-                .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("Resource with id: " + modifyBucketItemDTO.getProductId() + " not found");
+                .isInstanceOf(ProductNotFoundException.class)
+                .hasMessage("Product with id: " + modifyBucketItemDTO.getProductId() + " not found");
 
         verify(bucketRepository, times(1)).findByUserEmail(modifyBucketItemDTO.getUserEmail());
         verify(productRepository, times(1)).findById(modifyBucketItemDTO.getProductId());
@@ -155,8 +156,8 @@ class BucketServiceImplTest {
         when(bucketRepository.findByUserEmail(modifyBucketItemDTO.getUserEmail())).thenReturn(Optional.of(bucket));
 
         assertThatThrownBy(() -> bucketService.deleteItemOnBucket(modifyBucketItemDTO))
-                .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("Resource with id: " + modifyBucketItemDTO.getProductId() + " not found");
+                .isInstanceOf(ProductNotFoundException.class)
+                .hasMessage("Product with id: " + modifyBucketItemDTO.getProductId() + " not found");
 
         verify(bucketRepository, never()).save(any(Bucket.class));
         verify(bucketMapper, never()).toDto(any(Bucket.class));
@@ -255,8 +256,8 @@ class BucketServiceImplTest {
         when(bucketRepository.findByUserEmail(modifyBucketItemDTO.getUserEmail())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> bucketService.clearOrderedItems(creatorNewOrderDTO))
-                .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("Resource with name: " + modifyBucketItemDTO.getUserEmail() + " not found");
+                .isInstanceOf(BucketNotFoundException.class)
+                .hasMessage("Bucket with user Email: " + modifyBucketItemDTO.getUserEmail() + " not found");
 
         verify(bucketMapper, never()).toDto(any(Bucket.class));
     }
@@ -281,8 +282,8 @@ class BucketServiceImplTest {
         when(bucketRepository.findByUserEmail(modifyBucketItemDTO.getUserEmail())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> bucketService.getBucketByUser(modifyBucketItemDTO.getUserEmail()))
-                .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("Resource with name: " + modifyBucketItemDTO.getUserEmail() + " not found");
+                .isInstanceOf(BucketNotFoundException.class)
+                .hasMessage("Bucket with user Email: " + modifyBucketItemDTO.getUserEmail() + " not found");
 
     }
 }
