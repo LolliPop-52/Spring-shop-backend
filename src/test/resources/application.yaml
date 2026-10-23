@@ -8,8 +8,8 @@ spring:
     password: ${DB_PASSWORD}
   security:
     user:
-      name: admin
-      password: 1111
+      name: ${DEFAULT_USER_NAME}
+      password: ${DEFAULT_USER_PASSWORD}
   flyway:
     baseline-on-migrate: true
     enabled: true

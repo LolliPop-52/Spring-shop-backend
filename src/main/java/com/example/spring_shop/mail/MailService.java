@@ -19,7 +19,7 @@ public class MailService {
         mailMessage.setTo(to);
         mailMessage.setSubject("Подтверждение");
         mailMessage.setText("Для подтверждения перейдите по ссылке: " +
-                "http://localhost:8080/api/v1/auth/confirm?token=" + token);
+                "https://localhost:8080/api/v1/auth/confirm?token=" + token);
 
         mailSender.send(mailMessage);
     }
